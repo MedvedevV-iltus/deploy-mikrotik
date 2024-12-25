@@ -1,5 +1,5 @@
 # deploy-mikrotik
-Самый простой способ запустить скрипт - это вставить написанный ниже код в Терминал Mikrotik (при условии, что на Mikrotik есть интернет)
+## Быстрый запуск
 ```
 {
   tool/fetch url=https://raw.githubusercontent.com/MedvedevV-iltus/deploy-mikrotik/refs/heads/main/preparation.rsc output=file dst-path=flash;  
@@ -7,3 +7,7 @@
   /system/script/run preparation;
 }
 ```
+## Для чего этот скрипт
+## Пошаговый пример запуска
+### Если у роутера уже есть доступ в интернет
+### Если доступа нет
