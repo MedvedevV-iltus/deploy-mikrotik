@@ -216,10 +216,8 @@ add dont-require-permissions=no name=preparation policy=\
     \n    \\n/tool mac-server mac-winbox set allowed-interface-list=LAN\\\
     \n    \\n\\\
     \n    \\n#================ TUNNEL ==============================\\\
-    \n    \\n/interface l2tp-client add name=l2tp-k12 connect-to=194.190.247.26 user=sputnik-1 password=fyU99nzksnE5L9c use-ipsec=yes ipsec-secret=321zxc use-peer-dns=no add-default-route=no
+    \n    \\n/interface l2tp-client add name=l2tp-k12 connect-to=194.190.247.26 user=sputnik-1 password=fyU99nzksnE5L9c disabled=no use-ipsec=yes ipsec-secret=321zxc use-peer-dns=no add-default-route=no
     \n    \\n/ip route add disabled=no dst-address=10.33.0.0/24 gateway=l2tp-k12\
-    ut1 sup\\\
-    \n    press-hw-offload=no\\\
     \n    \\n\\\
     \n    \\n#================ NTP-client ==========================\\\
     \n    \\n/ip/cloud set update-time=no\\\
