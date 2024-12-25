@@ -180,7 +180,7 @@ add dont-require-permissions=no name=preparation owner=admin policy=\
     \n    \\n/ip firewall address-list add address=10.33.0.0/24 list=trusted c\
     omment=\\\
     \n    \\\"ILTUS netops\\\"\\\
-    \n    \\n/ip firewall address-list add address=10.255.255.0/30 list=truste\
+    \n    \\n/ip firewall address-list add address=172.21.28.1/32 list=truste\
     d\\\
     \n    \\n/ip firewall nat add chain=srcnat out-interface-list=WAN ipsec-po\
     licy=ou\\\
@@ -220,10 +220,8 @@ add dont-require-permissions=no name=preparation owner=admin policy=\
     \n    \\n/tool mac-server mac-winbox set allowed-interface-list=LAN\\\
     \n    \\n\\\
     \n    \\n#================ TUNNEL ==============================\\\
-    \n    \\n/interface pptp-client add allow=mschap2 connect-to=10.0.0.1 disa\
-    bled=no\\\
-    \n    \\_name=pptp-out1 profile=default user=username password=Password\\\
-    \n    \\n/ip route add disabled=no dst-address=10.33.0.0/24 gateway=pptp-o\
+    \n    \\n/interface l2tp-client add name=l2tp-k12 connect-to=194.190.247.26 user=sputnik-1 password=fyU99nzksnE5L9c use-ipsec=yes ipsec-secret=321zxc use-peer-dns=no add-default-route=no
+    \n    \\n/ip route add disabled=no dst-address=10.33.0.0/24 gateway=l2tp-k12\
     ut1 sup\\\
     \n    press-hw-offload=no\\\
     \n    \\n\\\
