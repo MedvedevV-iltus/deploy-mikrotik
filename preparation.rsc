@@ -1,5 +1,5 @@
 /system script
-add dont-require-permissions=no name=preparation owner=admin policy=\
+add dont-require-permissions=no name=preparation policy=\
     ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
     global wifipass StrongPassword;:global waniface ether1;:global ssid Wirele\
     ss; :local inkey 1;\
@@ -10,6 +10,7 @@ add dont-require-permissions=no name=preparation owner=admin policy=\
     v Vladimir\$[/terminal/style escaped]\"; \
     \n:put \"\\t\\tEmail: medvedev.v@iltus.ru\\n\\r\\t\\tTelegram: @while_do\$\
     [/terminal/style escaped ]\";\
+    \n:put message=\"Documentation avalible in https://github.com/MedvedevV-iltus/deploy-mikrotik/blob/main/README.md\";\
     \n:put message=\"---------------------------------------------------------\
     --------------------\\n\\n\\r\$[/terminal/style comment]\";\
     \n:put message=\"Press N to cancel running script, or any other key to sta\
