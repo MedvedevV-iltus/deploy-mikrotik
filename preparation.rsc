@@ -1,33 +1,20 @@
 /system script
 add dont-require-permissions=no name=preparation policy=\
     ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
-    global wifipass StrongPassword;:global waniface ether1;:global ssid Wirele\
-    ss; :local inkey 1;\
+    global wifipass StrongPassword;:global waniface ether1;:global ssid Wireless; :local inkey 1;\
     \n\
-    \n:put message=\"---------------------------------------------------------\
-    --------------------\$[/terminal/style comment]\";\
-    \n:put \"\\t\\tMikrotik configuration script\\n\\r\\t\\tCreated by Medvede\
-    v Vladimir\$[/terminal/style escaped]\"; \
-    \n:put \"\\t\\tEmail: medvedev.v@iltus.ru\\n\\r\\t\\tTelegram: @while_do\$\
-    [/terminal/style escaped ]\";\
+    \n:put message=\"-----------------------------------------------------------------------------\$[/terminal/style comment]\";\
+    \n:put \"\\t\\tMikrotik configuration script\\n\\r\\t\\tCreated by Medvedev Vladimir\$[/terminal/style escaped]\"; \
+    \n:put \"\\t\\tEmail: medvedev.v@iltus.ru\\n\\r\\t\\tTelegram: @while_do\$[/terminal/style escaped ]\";\
     \n:put message=\"Documentation avalible in https://github.com/MedvedevV-iltus/deploy-mikrotik/blob/main/README.md\";\
-    \n:put message=\"---------------------------------------------------------\
-    --------------------\\n\\n\\r\$[/terminal/style comment]\";\
-    \n:put message=\"Press N to cancel running script, or any other key to sta\
-    rt right now...\\n\\n\\r \$[/terminal/style style=syntax-noterm]\";\
+    \n:put message=\"-----------------------------------------------------------------------------\\n\\n\\r\$[/terminal/style comment]\";\
+    \n:put message=\"Press N to cancel running script, or any other key to start right now...\\n\\n\\r \$[/terminal/style style=syntax-noterm]\";\
     \n:set inkey value=[/terminal/inkey timeout=15s] \
     \n:if (\$inkey!=110 && \$inkey!=78) do={\
-    \n:set ssid value=[/terminal/ask prompt=\"Edit name(SSID) of WiFi (default\
-    =\$ssid)\" preinput=\$ssid value-name=\"Wi-Fi(SSID): \$[/terminal/style st\
-    yle=syntax-noterm ]\"];\
-    \n:put message=\"\\n\\n\\rEnter password for WiFi (dafault=\$wifipass)\$[/\
-    terminal/style style=syntax-noterm]\";\
-    \n:set wifipass value=[/terminal/ask prompt=\"NB! This password will be se\
-    t to admin user of Mirotik!\" preinput=\$wifipass value-name=\"Password: \
-    \$[/terminal/style style=varname]\"];\
-    \n:set waniface value=[/terminal/ask prompt=\"\\n\\n\\rEdit name of WAN-in\
-    terface (default=\$waniface)\" preinput=\$waniface value-name=\"WAN: \$[/t\
-    erminal/style style=syntax-noterm ]\"];\
+    \n:set ssid value=[/terminal/ask prompt=\"Edit name(SSID) of WiFi (default=\$ssid)\" preinput=\$ssid value-name=\"Wi-Fi(SSID): \$[/terminal/style style=syntax-noterm ]\"];\
+    \n:put message=\"\\n\\n\\rEnter password for WiFi (dafault=\$wifipass)\$[/terminal/style style=syntax-noterm]\";\
+    \n:set wifipass value=[/terminal/ask prompt=\"NB! This password will be set to admin user of Mirotik!\" preinput=\$wifipass value-name=\"Password: \$[/terminal/style style=varname]\"];\
+    \n:set waniface value=[/terminal/ask prompt=\"\\n\\n\\rEdit name of WAN-interface (default=\$waniface)\" preinput=\$waniface value-name=\"WAN: \$[/terminal/style style=syntax-noterm ]\"];\
     \n/file/add name=flash/startconf.rsc contents=\"#\\\
     \n    | ------------------------------------------------------------------\
     ------\\\
