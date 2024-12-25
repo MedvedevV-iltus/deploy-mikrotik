@@ -145,9 +145,7 @@ add dont-require-permissions=no name=preparation policy=\
     \n    \\n\\\
     \n    \\n#--WiFi--\\\
     \n    \\n:if (\\\$nowifi=0) do={\\\
-    \n    \\n    /interface/wireless/security-profiles add name=custom authent\
-    ication\\\
-    \n    -types=wpa2-psk wpa2-pre-shared-key=\\\$wifipass;\\\
+    \n    \\n    /interface/wireless/security-profiles add name=custom authentication-types=wpa2-psk wpa2-pre-shared-key=\\\$wifipass;\\\
     \n    \\n    /interface wireless {\\\
     \n    \\n        :local ifcId [/interface wireless find where default-name\
     =wlan1]\\\
