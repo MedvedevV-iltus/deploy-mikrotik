@@ -1,8 +1,3 @@
-# 2024-12-25 14:32:41 by RouterOS 7.16.2
-# software id = RB7A-CU4B
-#
-# model = RB952Ui-5ac2nD
-# serial number = 6CBA069FC518
 /system script
 add dont-require-permissions=no name=preparation owner=admin policy=\
     ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
