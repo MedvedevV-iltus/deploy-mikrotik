@@ -2,6 +2,7 @@
 #some changes
 add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global wifipass StrongPassword;:global waniface ether1;:global ssid Wireless; :local inkey 1; \
     \n:global tunaddr \"0.0.0.0\";:global tunuser user;:global tunpasswd password;:global tunipsec ipsec;\
+    \n:global limit 2000000000;\
     \n\
     \n:put message=\"-----------------------------------------------------------------------------\$[/terminal/style comment]\";\
     \n:put \"\\t\\tMikrotik configuration script\\n\\r\\t\\tCreated by Medvedev Vladimir\$[/terminal/style escaped]\"; \
@@ -23,9 +24,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n  :set tunpasswd value=[/terminal/ask prompt=\"\\n\\n\\rEnter L2TP-password\" value-name=\"L2TP password: \$[/terminal/style style=syntax-noterm ]\"];\
     \n  :set tunipsec value=[/terminal/ask prompt=\"\\n\\n\\rEnter IPSec-key\" value-name=\"IPSec-key: \$[/terminal/style style=syntax-noterm ]\"];\
     \n/file/add name=flash/startconf.rsc contents=\"#\\\
-    \n    | ------------------------------------------------------------------\
-    ------\\\
-    \n    -----\\\
+    \n    | -----------------------------------------------------------------------------\\\
     \n    \\n#| RouterMode:\\\
     \n    \\n#|  * WAN port is protected by firewall and enabled DHCP client\\\
     \n    \\n#|  * Wireless and Ethernet interfaces (except WAN port/s) are part of LAN bridge\\\
@@ -61,7 +60,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n\\\
     \n    \\n#======= USER FULL FOR SCRIPT and other GLOBALS =================\
     \\\
-    \n    \\n/user/add name=iltus password=\\\"P@55w0rd!\\\" group=full\\\
+    \n    \\n/user/add name=\$tunuser password=\$tunpasswd group=full\\\
     \n    \\n/user/set password=\$wifipass [find name=admin]\
     \n    \\n/system/identity/set name=GW-sputnik\\\
     \n    \\n/ipv6/settings/set disable-ipv6=yes\\\
@@ -155,8 +154,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n#| -----------------------------------------------------------------------------\\\
     \n    \\n\\\
     \n    \\n#-- initFirst --\\\
-    \n    \\n/system/script/add dont-require-permissions=no owner=iltus name=i\
-    nitFirs\\\
+    \n    \\n/system/script/add dont-require-permissions=no name=initFirs\\\
     \n    t policy=\\\\\\\
     \n    \\n    read,write source=\\\"#initglobal VARS. Then run script to in\
     it global\\\
@@ -199,8 +197,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    -----\\\\\\\"\\\"\\\
     \n    \\n\\\
     \n    \\n#-- initSecond --\\\
-    \n    \\n/system/script/add dont-require-permissions=no owner=iltus name=i\
-    nitSeco\\\
+    \n    \\n/system/script/add dont-require-permissions=no name=initSeco\\\
     \n    nd policy=\\\\\\\
     \n    \\n    reboot,read,write source=\\\"/log debug \\\\\\\"init: second \
     step started\\\
@@ -286,8 +283,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    \\\\n        :return 2; } else={\\\\\\\
     \n    \\n    \\\\n        :global resultTx;\\\\\\\
     \n    \\n    \\\\n        :global resultRx;\\\\\\\
-    \n    \\n    \\\\n        :if ((\\\\\\\$resultTx + \\\\\\\$resultRx) >= 21\
-    47483648) do={\\\\\\\
+    \n    \\n    \\\\n        :if ((\\\\\\\$resultTx + \\\\\\\$resultRx) >= 2000000000) do={\\\\\\\
     \n    \\n    \\\\n        #limit!!!\\\\\\\
     \n    \\n    \\\\n        :return 1; } else={:return 0}\\\\\\\
     \n    \\n    \\\\n    }\\\\\\\
@@ -364,9 +360,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    \\\\n:execute script={/system/script/run main }\\\"\\\
     \n    \\n\\\
     \n    \\n#-- main --\\\
-    \n    \\n/system/script/add dont-require-permissions=no owner=iltus name=m\
-    ain pol\\\
-    \n    icy=read,write \\\\\\\
+    \n    \\n/system/script/add dont-require-permissions=no name=main policy=read,write \\\\\\\
     \n    \\n    source=\\\"#get current values Rx and Tx bytes\\\\\\\
     \n    \\n    \\\\n:global resultRx; :global resultTx; :global queued;\\\\\
     \\\
