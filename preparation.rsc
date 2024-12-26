@@ -1,7 +1,6 @@
 /system script
-add dont-require-permissions=no name=preparation policy=\
-    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
-    global wifipass StrongPassword;:global waniface ether1;:global ssid Wireless; :local inkey 1;\
+add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global wifipass StrongPassword;:global waniface ether1;:global ssid Wireless; :local inkey 1; \
+    \n:global tunaddr \"194.190.247.26\";:global tunuser user;:global tunpasswd password;:global tunipsec ipsec;\
     \n\
     \n:put message=\"-----------------------------------------------------------------------------\$[/terminal/style comment]\";\
     \n:put \"\\t\\tMikrotik configuration script\\n\\r\\t\\tCreated by Medvedev Vladimir\$[/terminal/style escaped]\"; \
@@ -11,40 +10,32 @@ add dont-require-permissions=no name=preparation policy=\
     \n:put message=\"Press N to cancel running script, or any other key to start right now...\\n\\n\\r \$[/terminal/style style=syntax-noterm]\";\
     \n:set inkey value=[/terminal/inkey timeout=15s] \
     \n:if (\$inkey!=110 && \$inkey!=78) do={\
-    \n:set ssid value=[/terminal/ask prompt=\"Edit name(SSID) of WiFi (default=\$ssid)\" preinput=\$ssid value-name=\"Wi-Fi(SSID): \$[/terminal/style style=syntax-noterm ]\"];\
-    \n:put message=\"\\n\\n\\rEnter password for WiFi (dafault=\$wifipass)\$[/terminal/style style=syntax-noterm]\";\
-    \n:set wifipass value=[/terminal/ask prompt=\"NB! This password will be set to admin user of Mirotik!\" preinput=\$wifipass value-name=\"Password: \$[/terminal/style style=varname]\"];\
-    \n:set waniface value=[/terminal/ask prompt=\"\\n\\n\\rEdit name of WAN-interface (default=\$waniface)\" preinput=\$waniface value-name=\"WAN: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n  :set ssid value=[/terminal/ask prompt=\"Edit name(SSID) of WiFi (default=\$ssid)\" preinput=\$ssid value-name=\"Wi-Fi(SSID): \$[/terminal/style style=syntax-noterm ]\"];\
+    \n  :put message=\"\\n\\n\\rEnter password for WiFi (dafault=\$wifipass)\$[/terminal/style style=syntax-noterm]\";\
+    \n  :set wifipass value=[/terminal/ask prompt=\"NB! This password will be set to admin user of Mirotik!\" preinput=\$wifipass value-name=\"Password: \$[/terminal/style style=varname]\"];\
+    \n  :set waniface value=[/terminal/ask prompt=\"\\n\\n\\rEdit name of WAN-interface (default=\$waniface)\" preinput=\$waniface value-name=\"WAN: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n  :put message=\"-----------------------------------------------------------------------------\\n\\n\\r\$[/terminal/style comment]\";\
+    \n  :put message=\"For continue you need enter L2TP/IPSec parametrs.\\n\\rIf you don't have them, please contact with Vladimir Medvedev\$[/terminal/style style=varname]\"\
+    \n  :put message=\"\\tEmail: medvedev.v@iltus.ru\\n\\r\\tTelegram: @while_do\$[/terminal/style escaped ]\"\
+    \n  :set tunaddr value=[/terminal/ask prompt=\"\\n\\n\\rEnter endpoint address of Tunnel\" value-name=\"IP: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n  :set tunuser value=[/terminal/ask prompt=\"\\n\\n\\rEnter L2TP-username\" value-name=\"L2TP user: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n  :set tunpasswd value=[/terminal/ask prompt=\"\\n\\n\\rEnter L2TP-password\" value-name=\"L2TP password: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n  :set tunipsec value=[/terminal/ask prompt=\"\\n\\n\\rEnter IPSec-key\" value-name=\"IPSec-key: \$[/terminal/style style=syntax-noterm ]\"];\
     \n/file/add name=flash/startconf.rsc contents=\"#\\\
     \n    | ------------------------------------------------------------------\
     ------\\\
     \n    -----\\\
     \n    \\n#| RouterMode:\\\
     \n    \\n#|  * WAN port is protected by firewall and enabled DHCP client\\\
-    \n    \\n#|  * Wireless and Ethernet interfaces (except WAN port/s)\\\
-    \n    \\n#|    are part of LAN bridge\\\
-    \n    \\n#| LAN Configuration:\\\
-    \n    \\n#|     IP address 192.168.88.1/24 is set on bridge (LAN port)\\\
-    \n    \\n#|     DHCP Server: enabled;\\\
-    \n    \\n#|     DNS: enabled;\\\
-    \n    \\n#| wlan1 Configuration:\\\
-    \n    \\n#|     mode:                ap-bridge;\\\
-    \n    \\n#|     band:                2ghz-b/g/n;\\\
-    \n    \\n#|     tx-chains:           0;1;\\\
-    \n    \\n#|     rx-chains:           0;1;\\\
-    \n    \\n#|     installation:        any;\\\
-    \n    \\n#|     wpa2:      yes;\\\
-    \n    \\n#|     ht-extension:        20/40mhz-XX;\\\
-    \n    \\n#| WAN (gateway) Configuration:\\\
-    \n    \\n#|     gateway:       ether1;\\\
-    \n    \\n#|     ip4 firewall:  enabled;\\\
-    \n    \\n#|     ip6 firewall:  enabled;\\\
-    \n    \\n#|     NAT:   enabled;\\\
-    \n    \\n#|     DHCP Client: enabled;\\\
+    \n    \\n#|  * Wireless and Ethernet interfaces (except WAN port/s) are part of LAN bridge\\\
     \n    \\n\\\
     \n    \\n:global ssid \$ssid;\\\
     \n    \\n:global wifipass \$wifipass;\\\
     \n    \\n:global waniface \$waniface;\\\
+    \n    \\n:global tunaddr \$tunaddr;\\\
+    \n    \\n:global tunuser \$tunuser;\\\
+    \n    \\n:global tunpasswd \$tunpasswd;\\\
+    \n    \\n:global tunipsec \$tunipsec;\\\
     \n    \\n\\\
     \n    \\n:log debug \\\"Starting config-script\\\";\\\
     \n    \\n#======== WAIT for interfaces =====================\\\
@@ -52,8 +43,7 @@ add dont-require-permissions=no name=preparation policy=\
     \n    \\n:local nowifi 0;\\\
     \n    \\n:while ([/interface ethernet find] = \\\"\\\") do={\\\
     \n    \\n    :if (\\\$count = 30) do={\\\
-    \n    \\n        :log warning \\\"Unable to find ethernet interfaces\\\";\
-    \\\
+    \n    \\n        :log warning \\\"Unable to find ethernet interfaces\\\";\\\
     \n    \\n            /quit;\\\
     \n    \\n            }\\\
     \n    \\n            :delay 1s; :set count (\\\$count +1); \\\
@@ -63,8 +53,7 @@ add dont-require-permissions=no name=preparation policy=\
     \n    \\n    :set count (\\\$count +1);\\\
     \n    \\n    :if (\\\$count = 40) do={\\\
     \n    \\n        :set nowifi 1;\\\
-    \n    \\n            :log warning \\\"Unable to find wireless interface(s)\
-    \\\"; \\\
+    \n    \\n            :log warning \\\"Unable to find wireless interface(s)\\\"; \\\
     \n    \\n            }\\\
     \n    \\n            :delay 1s;\\\
     \n    \\n}\\\
@@ -80,8 +69,7 @@ add dont-require-permissions=no name=preparation policy=\
     \n    \\n/tool/bandwidth-server/set enabled=no\\\
     \n    \\n\\\
     \n    \\n#-- enable debug logs for script --\\\
-    \n    \\n/system logging action add name=extra target=memory memory-lines=\
-    2000;\\\
+    \n    \\n/system logging action add name=extra target=memory memory-lines=2000;\\\
     \n    \\n/system logging add action=extra topics=script;\\\
     \n    \\n\\\
     \n    \\n\\\
@@ -92,64 +80,41 @@ add dont-require-permissions=no name=preparation policy=\
     \n    \\n/interface list add name=LAN;\\\
     \n    \\n\\\
     \n    \\n#--Local Bridge--- \\\
-    \n    \\n/interface bridge add name=bridge disabled=no auto-mac=yes protoc\
-    ol-mode\\\
-    \n    =rstp;\\\
+    \n    \\n/interface bridge add name=bridge disabled=no auto-mac=yes protocol-mode=rstp;\\\
     \n    \\n:local bMACIsSet 0;\\\
     \n    \\n\\\
-    \n    \\n:foreach k in=[/interface find where !(slave=yes   || name=\\\$wa\
-    niface ||\\\
-    \n    \\_passthrough=yes || type=loopback || name~\\\"bridge\\\")] do={\\\
+    \n    \\n:foreach k in=[/interface find where !(slave=yes   || name=\\\$waniface || passthrough=yes || type=loopback || name~\\\"bridge\\\")] do={\\\
     \n    \\n    :local tmpPortName [/interface get \\\$k name];\\\
     \n    \\n    :if (\\\$bMACIsSet = 0) do={\\\
     \n    \\n        :if ([/interface get \\\$k type] = \\\"ether\\\") do={\\\
-    \n    \\n                /interface bridge set \\\"bridge\\\" auto-mac=no \
-    admin-mac=[\\\
-    \n    /interface get \\\$tmpPortName mac-address];\\\
+    \n    \\n                /interface bridge set \\\"bridge\\\" auto-mac=no admin-mac=[/interface get \\\$tmpPortName mac-address];\\\
     \n    \\n                        :set bMACIsSet 1;\\\
     \n    \\n                            }\\\
     \n    \\n                            }\\\
-    \n    \\n                            :if (([/interface get \\\$k type] != \
-    \\\"ppp-out\\\
-    \n    \\\") && ([/interface get \\\$k type] != \\\"lte\\\")) do={\\\
-    \n    \\n                                /interface bridge port add bridge\
-    =bridge\\\
-    \n    \\_interface=\\\$tmpPortName;\\\
+    \n    \\n                            :if (([/interface get \\\$k type] != \\\"ppp-out\\\") && ([/interface get \\\$k type] != \\\"lte\\\")) do={\\\
+    \n    \\n                                /interface bridge port add bridge=bridge interface=\\\$tmpPortName;\\\
     \n    \\n                                }\\\
     \n    \\n}\\\
     \n    \\n/ip address add address=192.168.88.1/24 interface=bridge;\\\
     \n    \\n\\\
     \n    \\n#--DHCP-server--\\\
-    \n    \\n/ip pool add name=\\\"default-dhcp\\\" ranges=192.168.88.10-192.1\
-    68.88.254;\\\
-    \n    \\n/ip dhcp-server add name=dhcp-server address-pool=\\\"default-dhc\
-    p\\\" inter\\\
-    \n    face=bridge disabled=no;\\\
-    \n    \\n/ip dhcp-server network add address=192.168.88.0/24 gateway=192.1\
-    68.88.1\\\
-    \n    \\_dns-server=192.168.88.1;\\\
+    \n    \\n/ip pool add name=\\\"default-dhcp\\\" ranges=192.168.88.10-192.168.88.254;\\\
+    \n    \\n/ip dhcp-server add name=dhcp-server address-pool=\\\"default-dhcp\\\" interface=bridge disabled=no;\\\
+    \n    \\n/ip dhcp-server network add address=192.168.88.0/24 gateway=192.168.88.1 dns-server=192.168.88.1;\\\
     \n    \\n/ip dns set allow-remote-requests=yes\\\
     \n    \\n\\\
     \n    \\n#--WiFi--\\\
     \n    \\n:if (\\\$nowifi=0) do={\\\
     \n    \\n    /interface/wireless/security-profiles add name=custom mode=dynamic-keys authentication-types=wpa2-psk wpa2-pre-shared-key=\\\$wifipass;\\\
     \n    \\n    /interface wireless {\\\
-    \n    \\n        :local ifcId [/interface wireless find where default-name\
-    =wlan1]\\\
-    \n    \\n            :local currentName [/interface wireless get \\\$ifcId\
-    \_name]\\\
-    \n    \\n                set \\\$ifcId mode=ap-bridge band=2ghz-b/g/n disa\
-    bled=no w\\\
-    \n    ireless-protocol=802.11 \\\
-    \n    \\n                    set \\\$ifcId distance=indoors installation=a\
-    ny countr\\\
-    \n    y=russia4\\\
-    \n    \\n                        set \\\$ifcId channel-width=20/40mhz-XX s\
-    ecurity-p\\\
-    \n    rofile=custom\\\
-    \n    \\n                            set \\\$ifcId frequency=auto\\\
-    \n    \\n                                set \\\$ifcId ssid=\\\$ssid\\\
-    \n    \\n                                }\\\
+    \n    \\n        :local ifcId [/interface wireless find where default-name=wlan1]\\\
+    \n    \\n        :local currentName [/interface wireless get \\\$ifcId name]\\\
+    \n    \\n        set \\\$ifcId mode=ap-bridge band=2ghz-b/g/n disabled=no wireless-protocol=802.11 \\\
+    \n    \\n        set \\\$ifcId distance=indoors installation=any country=russia4\\\
+    \n    \\n        set \\\$ifcId channel-width=20/40mhz-XX security-profile=custom\\\
+    \n    \\n        set \\\$ifcId frequency=auto\\\
+    \n    \\n        set \\\$ifcId ssid=\\\$ssid\\\
+    \n    \\n    }\\\
     \n    \\n}\\\
     \n    \\n#============ WAN interface ============================\\\
     \n    \\n/ip dhcp-client add interface=\\\$waniface disabled=no;\\\
@@ -158,65 +123,35 @@ add dont-require-permissions=no name=preparation policy=\
     \n    \\n/interface list member add list=LAN interface=bridge;\\\
     \n    \\n/interface list member add list=WAN interface=\\\$waniface;\\\
     \n    \\n\\\
-    \n    \\n/ip firewall address-list add address=10.33.0.0/24 list=trusted c\
-    omment=\\\
-    \n    \\\"ILTUS netops\\\"\\\
-    \n    \\n/ip firewall address-list add address=172.21.28.1/32 list=truste\
-    d\\\
-    \n    \\n/ip firewall nat add chain=srcnat out-interface-list=WAN ipsec-po\
-    licy=ou\\\
-    \n    t,none action=masquerade;\\\
+    \n    \\n/ip firewall address-list add address=10.33.0.0/24 list=trusted comment=\\\"ILTUS netops\\\"\\\
+    \n    \\n/ip firewall address-list add address=172.21.28.1/32 list=trusted\\\
+    \n    \\n/ip firewall nat add chain=srcnat out-interface-list=WAN ipsec-policy=out,none action=masquerade;\\\
     \n    \\n/ip firewall {\\\
-    \n    \\n    filter add chain=input action=accept connection-state=establi\
-    shed,re\\\
-    \n    lated,untracked comment=\\\"accept established,related,untracked\\\"\
-    \\\
-    \n    \\n    filter add chain=input action=drop connection-state=invalid c\
-    omment=\\\
-    \n    \\\"drop invalid\\\"\\\
-    \n    \\n    filter add chain=input action=accept protocol=icmp comment=\\\
-    \"accept \\\
-    \n    ICMP\\\"\\\
-    \n    \\n    filter add chain=input src-address-list=trusted action=accept\
-    \_commen\\\
-    \n    t=\\\"accept remote ILTUS\\\"\\\
-    \n    \\n    filter add chain=input action=drop in-interface-list=!LAN com\
-    ment=\\\"\\\
-    \n    drop all not coming from LAN\\\"\\\
-    \n    \\n    filter add chain=forward action=accept connection-state=estab\
-    lished,\\\
-    \n    related,untracked comment=\\\"accept established,related, untracked\
-    \\\"\\\
-    \n    \\n    filter add chain=forward action=drop connection-state=invalid\
-    \_commen\\\
-    \n    t=\\\"drop invalid\\\"\\\
-    \n    \\n    filter add chain=forward action=drop connection-state=new con\
-    nection\\\
-    \n    -nat-state=!dstnat in-interface-list=WAN comment=\\\"drop all from W\
-    AN not D\\\
-    \n    STNATed\\\"\\\
+    \n    \\n    filter add chain=input action=accept connection-state=established,related,untracked comment=\\\"accept established,related,untracked\\\"\\\
+    \n    \\n    filter add chain=input action=drop connection-state=invalid comment=\\\"drop invalid\\\"\\\
+    \n    \\n    filter add chain=input action=accept protocol=icmp comment=\\\"accept ICMP\\\"\\\
+    \n    \\n    filter add chain=input src-address-list=trusted action=accept comment=\\\"accept remote ILTUS\\\"\\\
+    \n    \\n    filter add chain=input action=drop in-interface-list=!LAN comment=\\\"drop all not coming from LAN\\\"\\\
+    \n    \\n    filter add chain=forward action=accept connection-state=established,related,untracked comment=\\\"accept established,related,untracked\\\"\\\
+    \n    \\n    filter add chain=forward action=drop connection-state=invalid comment=\\\"drop invalid\\\"\\\
+    \n    \\n    filter add chain=forward action=drop connection-state=new connection-nat-state=!dstnat in-interface-list=WAN comment=\\\"drop all from WAN not DSTNATed\\\"\\\
     \n    \\n}\\\
     \n    \\n/ip neighbor discovery-settings set discover-interface-list=LAN\\\
     \n    \\n/tool mac-server set allowed-interface-list=LAN\\\
     \n    \\n/tool mac-server mac-winbox set allowed-interface-list=LAN\\\
     \n    \\n\\\
     \n    \\n#================ TUNNEL ==============================\\\
-    \n    \\n/interface l2tp-client add name=l2tp-k12 connect-to=194.190.247.26 user=sputnik-1 password=fyU99nzksnE5L9c disabled=no use-ipsec=yes ipsec-secret=321zxc use-peer-dns=no add-default-route=no
+    \n    \\n/interface l2tp-client add name=l2tp-k12 connect-to=\\\$tunaddr user=\\\$tunuser password=\\\$tunpasswd disabled=no use-ipsec=yes ipsec-secret=\\\$tunipsec use-peer-dns=no add-default-route=no
     \n    \\n/ip route add disabled=no dst-address=10.33.0.0/24 gateway=l2tp-k12\
     \n    \\n\\\
     \n    \\n#================ NTP-client ==========================\\\
     \n    \\n/ip/cloud set update-time=no\\\
-    \n    \\n/system/ntp/client set enabled=yes mode=unicast servers=ru.pool.n\
-    tp.org\\\
+    \n    \\n/system/ntp/client set enabled=yes mode=unicast servers=ru.pool.ntp.org\\\
     \n    \\n\\\
-    \n    \\n#| --------------------------------------------------------------\
-    -------\\\
-    \n    --------\\\
+    \n    \\n#| -----------------------------------------------------------------------------\\\
     \n    \\n#| CONFIG IS READY\\\
     \n    \\n#| Preparing script for limit traffic\\\
-    \n    \\n#| --------------------------------------------------------------\
-    -------\\\
-    \n    --------\\\
+    \n    \\n#| -----------------------------------------------------------------------------\\\
     \n    \\n\\\
     \n    \\n#-- initFirst --\\\
     \n    \\n/system/script/add dont-require-permissions=no owner=iltus name=i\
