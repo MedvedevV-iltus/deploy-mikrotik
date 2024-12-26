@@ -1,7 +1,7 @@
 /system script
-#some changes
 add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global wifipass StrongPassword;:global waniface ether1;:global ssid Wireless; :local inkey 1; \
     \n:global tunaddr \"0.0.0.0\";:global tunuser user;:global tunpasswd password;:global tunipsec ipsec;\
+    \n:global limit 2000000000;:global inkeytun 1;\
     \n\
     \n:put message=\"-----------------------------------------------------------------------------\$[/terminal/style comment]\";\
     \n:put \"\\t\\tMikrotik configuration script\\n\\r\\t\\tCreated by Medvedev Vladimir\$[/terminal/style escaped]\"; \
@@ -15,17 +15,19 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n  :put message=\"\\n\\n\\rEnter password for WiFi (dafault=\$wifipass)\$[/terminal/style style=syntax-noterm]\";\
     \n  :set wifipass value=[/terminal/ask prompt=\"NB! This password will be set to admin user of Mirotik!\" preinput=\$wifipass value-name=\"Password: \$[/terminal/style style=varname]\"];\
     \n  :set waniface value=[/terminal/ask prompt=\"\\n\\n\\rEdit name of WAN-interface (default=\$waniface)\" preinput=\$waniface value-name=\"WAN: \$[/terminal/style style=syntax-noterm ]\"];\
-    \n  :put message=\"-----------------------------------------------------------------------------\\n\\n\\r\$[/terminal/style comment]\";\
-    \n  :put message=\"For continue you need enter L2TP/IPSec parametrs.\\n\\rIf you don't have them, please contact with Vladimir Medvedev\$[/terminal/style style=varname]\"\
-    \n  :put message=\"\\tEmail: medvedev.v@iltus.ru\\n\\r\\tTelegram: @while_do\$[/terminal/style escaped ]\"\
-    \n  :set tunaddr value=[/terminal/ask prompt=\"\\n\\n\\rEnter endpoint address of Tunnel\" value-name=\"IP: \$[/terminal/style style=syntax-noterm ]\"];\
-    \n  :set tunuser value=[/terminal/ask prompt=\"\\n\\n\\rEnter L2TP-username\" value-name=\"L2TP user: \$[/terminal/style style=syntax-noterm ]\"];\
-    \n  :set tunpasswd value=[/terminal/ask prompt=\"\\n\\n\\rEnter L2TP-password\" value-name=\"L2TP password: \$[/terminal/style style=syntax-noterm ]\"];\
-    \n  :set tunipsec value=[/terminal/ask prompt=\"\\n\\n\\rEnter IPSec-key\" value-name=\"IPSec-key: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n  :put message=\"Press Y in 10 seconds to add tunnel parametrs\$[/terminal/style style=syntax-noterm]\";\
+    \n  :set inkeytun value=[/terminal/inkey timeout=10s];\
+    \n  :if (\$inkeytun=121 || \$inkeytun=89) do={\
+    \n    :put message=\"-----------------------------------------------------------------------------\\n\\n\\r\$[/terminal/style comment]\";\
+    \n    :put message=\"For continue you need enter L2TP/IPSec parametrs.\\n\\rIf you don't have them, please contact with Vladimir Medvedev\$[/terminal/style style=varname]\"\
+    \n    :put message=\"\\tEmail: medvedev.v@iltus.ru\\n\\r\\tTelegram: @while_do\$[/terminal/style escaped ]\"\
+    \n    :set tunaddr value=[/terminal/ask prompt=\"\\n\\n\\rEnter endpoint address of Tunnel\" value-name=\"IP: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n    :set tunuser value=[/terminal/ask prompt=\"\\n\\n\\rEnter L2TP-username\" value-name=\"L2TP user: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n    :set tunpasswd value=[/terminal/ask prompt=\"\\n\\n\\rEnter L2TP-password\" value-name=\"L2TP password: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n    :set tunipsec value=[/terminal/ask prompt=\"\\n\\n\\rEnter IPSec-key\" value-name=\"IPSec-key: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n  }
     \n/file/add name=flash/startconf.rsc contents=\"#\\\
-    \n    | ------------------------------------------------------------------\
-    ------\\\
-    \n    -----\\\
+    \n    | -----------------------------------------------------------------------------\\\
     \n    \\n#| RouterMode:\\\
     \n    \\n#|  * WAN port is protected by firewall and enabled DHCP client\\\
     \n    \\n#|  * Wireless and Ethernet interfaces (except WAN port/s) are part of LAN bridge\\\
@@ -37,6 +39,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n:global tunuser \$tunuser;\\\
     \n    \\n:global tunpasswd \$tunpasswd;\\\
     \n    \\n:global tunipsec \$tunipsec;\\\
+    \n    \\n:global inkeytun \$inkeytun;\\\
     \n    \\n\\\
     \n    \\n:log debug \\\"Starting config-script\\\";\\\
     \n    \\n#======== WAIT for interfaces =====================\\\
@@ -61,7 +64,8 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n\\\
     \n    \\n#======= USER FULL FOR SCRIPT and other GLOBALS =================\
     \\\
-    \n    \\n/user/add name=iltus password=\\\"P@55w0rd!\\\" group=full\\\
+    \n    \\n:if (\\\$inkeytun=121 || \\\$inkeytun=89) do={\\\
+    \n    \\n  /user/add name=\$tunuser password=\$tunpasswd group=full }\\\
     \n    \\n/user/set password=\$wifipass [find name=admin]\
     \n    \\n/system/identity/set name=GW-sputnik\\\
     \n    \\n/ipv6/settings/set disable-ipv6=yes\\\
@@ -142,8 +146,9 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n/tool mac-server mac-winbox set allowed-interface-list=LAN\\\
     \n    \\n\\\
     \n    \\n#================ TUNNEL ==============================\\\
-    \n    \\n/interface l2tp-client add name=l2tp-k12 connect-to=\\\$tunaddr user=\\\$tunuser password=\\\$tunpasswd disabled=no use-ipsec=yes ipsec-secret=\\\$tunipsec use-peer-dns=no add-default-route=no
-    \n    \\n/ip route add disabled=no dst-address=10.33.0.0/24 gateway=l2tp-k12\
+    \n    \\n:if (\\\$inkeytun=121 || \\\$inkeytun=89) do={\\\
+    \n    \\n  /interface l2tp-client add name=l2tp-k12 connect-to=\\\$tunaddr user=\\\$tunuser password=\\\$tunpasswd disabled=no use-ipsec=yes ipsec-secret=\\\$tunipsec use-peer-dns=no add-default-route=no
+    \n    \\n  /ip route add disabled=no dst-address=10.33.0.0/24 gateway=l2tp-k12\ }
     \n    \\n\\\
     \n    \\n#================ NTP-client ==========================\\\
     \n    \\n/ip/cloud set update-time=no\\\
@@ -155,8 +160,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n#| -----------------------------------------------------------------------------\\\
     \n    \\n\\\
     \n    \\n#-- initFirst --\\\
-    \n    \\n/system/script/add dont-require-permissions=no owner=iltus name=i\
-    nitFirs\\\
+    \n    \\n/system/script/add dont-require-permissions=no name=initFirs\\\
     \n    t policy=\\\\\\\
     \n    \\n    read,write source=\\\"#initglobal VARS. Then run script to in\
     it global\\\
@@ -199,8 +203,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    -----\\\\\\\"\\\"\\\
     \n    \\n\\\
     \n    \\n#-- initSecond --\\\
-    \n    \\n/system/script/add dont-require-permissions=no owner=iltus name=i\
-    nitSeco\\\
+    \n    \\n/system/script/add dont-require-permissions=no name=initSeco\\\
     \n    nd policy=\\\\\\\
     \n    \\n    reboot,read,write source=\\\"/log debug \\\\\\\"init: second \
     step started\\\
@@ -286,8 +289,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    \\\\n        :return 2; } else={\\\\\\\
     \n    \\n    \\\\n        :global resultTx;\\\\\\\
     \n    \\n    \\\\n        :global resultRx;\\\\\\\
-    \n    \\n    \\\\n        :if ((\\\\\\\$resultTx + \\\\\\\$resultRx) >= 21\
-    47483648) do={\\\\\\\
+    \n    \\n    \\\\n        :if ((\\\\\\\$resultTx + \\\\\\\$resultRx) >= 2000000000) do={\\\\\\\
     \n    \\n    \\\\n        #limit!!!\\\\\\\
     \n    \\n    \\\\n        :return 1; } else={:return 0}\\\\\\\
     \n    \\n    \\\\n    }\\\\\\\
@@ -364,9 +366,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    \\\\n:execute script={/system/script/run main }\\\"\\\
     \n    \\n\\\
     \n    \\n#-- main --\\\
-    \n    \\n/system/script/add dont-require-permissions=no owner=iltus name=m\
-    ain pol\\\
-    \n    icy=read,write \\\\\\\
+    \n    \\n/system/script/add dont-require-permissions=no name=main policy=read,write \\\\\\\
     \n    \\n    source=\\\"#get current values Rx and Tx bytes\\\\\\\
     \n    \\n    \\\\n:global resultRx; :global resultTx; :global queued;\\\\\
     \\\
