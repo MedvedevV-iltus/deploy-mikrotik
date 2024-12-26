@@ -1,0 +1,96 @@
+/log debug "init: second step started";
+:delay delay-time=30s;
+:global GetRx do={:return [([/interface ethernet get value-name=rx-bytes [find default-name=ether1]]->0)]} #имя интерфейса ether1 подставляется во время отработки скрипта preparation 
+:delay delay-time=1s;
+:global GetTx do={:return [([/interface ethernet get value-name=tx-bytes [find default-name=ether1]]->0)]} #имя интерфейса ether1 подставляется во время отработки скрипта preparation
+:delay delay-time=1s;
+:global SaveVars do={
+   :global resultRx; :global resultTx; :global lastRx; :global lastTx; :global cudate; :global queued;
+   /system/script/set [find name=initFirst] source="#initglobal VARS. Then run script to init global FUNCS\
+	   \n/log debug \"starting init first step: init global Vars\"\
+	   \n:delay delay-time=60s; \
+	   \n:global resultRx $resultRx;\
+	   \n/log debug \"var resultRx = \$resultRx\"\
+	   \n:delay delay-time=1s;\
+	   \n:global resultTx $resultTx;\
+	   \n/log debug \"var resultTx = \$resultTx\"\
+	   \n:delay delay-time=1s;\
+	   \n:global lastRx $lastRx;\
+	   \n/log debug \"var lastRx = \$lastRx\"\
+	   \n:delay delay-time=1s;\
+	   \n:global lastTx $lastTx;\
+	   \n/log debug \"var lastTx = \$lastTx\"\
+	   \n:delay delay-time=1s;\
+	   \n:global cudate $cudate;
+	   \n/log debug \"var cudate = \$cudate\"\
+	   \n:delay delay-time=1s;\
+	   \n:global queued $queued;\
+	   \n/log debug \"execute init second step\"\
+	   \n:onerror errorName in={ /system/script/run initSecond } do={/log error \
+	   \"init Second step stoped with error \$errorName\"}\
+	   \n:delay 10s;\
+	   \n/log debug \"first step is over\\n---------------------------\"" 
+}
+:delay delay-time=1s;
+
+:global Analyze do={
+  :global cudate;
+  :if (([:timestamp] - $cudate) > 24h) do={ #new day!!!
+    :return 2; } else={
+	:global resultTx;
+	:global resultRx;
+	:if (($resultTx + $resultRx) >= 2000000000) do={ #limit!!!
+      :return 1; } else={:return 0; }
+  }
+}
+:delay delay-time=1s;
+
+:global NTPcheck do={ :return 0; }
+:delay delay-time=1s;
+
+:global NewDay do={
+   :log debug "new day. Limits is over."
+   :global resultRx; :global resultTx; :global queued; :global cudate;
+   :global SaveVars;
+   :set resultRx 0;
+   :set resultTx 0;
+   :set queued 0;
+   :set cudate (([:timestamp]/1d)*1d);
+   [$SaveVars];
+   :return 0;
+}
+:delay delay-time=1s;
+
+#:global LimitTraf do={/queue/simple/add name=limiter target=192.168.88.0/24 max-limit=64k/64k disabled=no }
+:delay delay-time=1s;
+
+#:global UnLimitTraf do={/queue/simple/remove [find name=limiter] }
+#:delay delay-time=1s;
+
+:global GetValues do={
+   #get Vars with last Rx and Tx bytes
+   :global lastRx; :global lastTx; :global resultRx; :global resultTx;
+   #get Functions
+   :global GetTx; :global GetRx; :global SaveVars;
+   #get new values of Rx/Tx
+   :local newTx [$GetTx]                           
+   :local newRx [$GetRx]
+   
+   #if last > new => traffic-conter was reseted in mikrotik. Just skip one value
+   :if ($lastRx <= $newRx) do={
+	   :set resultRx [($resultRx + $newRx - $lastRx )]; 
+   :set resultTx [($resultTx + $newTx - $lastTx )]; }
+   
+   :set lastRx [$newRx]; :set lastTx [$newTx];      
+   
+   #save values to init script
+   [$SaveVars];
+   :delay delay-time=3s;
+
+   :return 0;
+}
+
+#start main proccess
+:delay delay-time=1s;
+:execute script={/system/script/run main };
+/log debug "Init: secont step is over"

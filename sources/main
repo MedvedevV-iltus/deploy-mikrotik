@@ -1,0 +1,40 @@
+#current values Rx and Tx bytes
+:global resultRx; :global resultTx; :global queued;
+#functions
+:global Analyze; :global GetValues; :global NewDay;
+
+:local control 0; :local analyzed 0; :local cycles 0;
+
+:while ($control=0) do={
+   :set cycles ($cycles + 1)
+   /log debug "start cycle #$cycles"
+   :set control [$GetValues]; 
+   :delay delay-time=5s
+   /log debug "Geted new values..."
+   :set analyzed [$Analyze]; 
+   /log debug "Analyzed";
+   :if ($analyzed=2) do={
+		   #new day! need set resultTx and resultRx to 0, and disable queue
+		   /queue/simple/remove [find name=limiter]
+		   :set queued 0;
+		   [$NewDay]
+		   :log debug "results = 0; queue disabled;"
+	   }
+	   
+	   :if ($analyzed=1) do={
+		   # reached 2GB!!! START QUEUE
+		   :if ($queued = 0) do={
+			   /queue/simple/add name=limiter target=192.168.88.0/24 max-limit=64k/64k disabled=no 
+			   :set queued 1;
+			   :log debug "reached limit of 2GB; queue started" } else={/log debug "queue is runnig" }
+	   }
+	   
+	   :if ($analyzed=0) do={
+		   # all ok; just do nothing;
+		   :log debug "check passed; limit is not reached"
+	   }
+
+   #cycle is over
+   /log debug "cycle #$cycles is over. wait for 20 seconds"
+   :delay delay-time=20s;
+}
