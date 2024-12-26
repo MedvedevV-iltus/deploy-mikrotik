@@ -1,0 +1,23 @@
+#initglobal VARS. Then run script to init global FUNCS
+/log debug "starting init first step: init global Vars"
+:delay delay-time=60s; 
+:global resultRx 0;
+/log debug "var resultRx = $resultRx"
+:delay delay-time=1s;
+:global resultTx 0;
+/log debug "var resultTx = $resultTx"
+:delay delay-time=1s;
+:global lastRx 0;
+/log debug "var lastRx = $lastRx"
+:delay delay-time=1s;
+:global lastTx 0;
+/log debug "var lastTx = $lastTx"
+:delay delay-time=1s;
+:global cudate 2869w00:00:00;      
+/log debug "var cudate = $cudate"
+:delay delay-time=1s;
+:global queued 0;
+/log debug "execute init second step"
+:onerror errorName in={ /system/script/run initSecond } do={/log error "init Second step stoped with error $errorName"};
+:delay 1s;
+/log debug "first step is over\n---------------------------"
