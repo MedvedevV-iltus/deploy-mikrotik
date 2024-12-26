@@ -1,7 +1,7 @@
 /system script
 add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global wifipass StrongPassword;:global waniface ether1;:global ssid Wireless; :local inkey 1; \
     \n:global tunaddr \"0.0.0.0\";:global tunuser user;:global tunpasswd password;:global tunipsec ipsec;\
-    \n:global limit 2000000000;:global inkeytun 1;\
+    \n:global inkeytun 1;\
     \n\
     \n:put message=\"-----------------------------------------------------------------------------\$[/terminal/style comment]\";\
     \n:put \"\\t\\tMikrotik configuration script\\n\\r\\t\\tCreated by Medvedev Vladimir\$[/terminal/style escaped]\"; \
@@ -154,24 +154,19 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n/ip/cloud set update-time=no\\\
     \n    \\n/system/ntp/client set enabled=yes mode=unicast servers=ru.pool.ntp.org\\\
     \n    \\n\\\
-    \n    \\n#| -----------------------------------------------------------------------------\\\
+    \n    \\n#|===============================================================================\\\
     \n    \\n#| CONFIG IS READY\\\
     \n    \\n#| Preparing script for limit traffic\\\
-    \n    \\n#| -----------------------------------------------------------------------------\\\
+    \n    \\n#|===============================================================================\\\
     \n    \\n\\\
     \n    \\n#-- initFirst --\\\
-    \n    \\n/system/script/add dont-require-permissions=no name=initFirs\\\
-    \n    t policy=\\\\\\\
-    \n    \\n    read,write source=\\\"#initglobal VARS. Then run script to in\
-    it global\\\
-    \n    \\_FUN\\\\\\\
-    \n    \\n    CS\\\\\\\
-    \n    \\n    \\\\n/log debug \\\\\\\"starting init first step: init global\
-    \_Vars\\\\\\\"\\\\\\\
+    \n    \\n/system/script/add dont-require-permissions=no name=initFirst policy=read,write source=\\\"#initglobal VARS. Then run script to init global FUNCS\\\\\\\
+    \n    \\n    \\\\n/log debug \\\\\\\"starting init first step: init global Vars\\\\\\\"\\\\\\\
     \n    \\n    \\\\n:delay delay-time=60s; \\\\\\\
+    \n    \\n    \\\\n:global limit 2000000000;\\\\\\\
+    \n    \\n    \\\\n:global period 24h;\\\\\\\
     \n    \\n    \\\\n:global resultRx 0;\\\\\\\
-    \n    \\n    \\\\n/log debug \\\\\\\"var resultRx = \\\\\\\$resultRx\\\\\\\
-    \"\\\\\\\
+    \n    \\n    \\\\n/log debug \\\\\\\"var resultRx = \\\\\\\$resultRx\\\\\\\"\\\\\\\
     \n    \\n    \\\\n:delay delay-time=1s;\\\\\\\
     \n    \\n    \\\\n:global resultTx 0;\\\\\\\
     \n    \\n    \\\\n/log debug \\\\\\\"var resultTx = \\\\\\\$resultTx\\\\\\\
@@ -224,6 +219,8 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    \\\\n    :global lastTx;\\\\\\\
     \n    \\n    \\\\n    :global cudate;\\\\\\\
     \n    \\n    \\\\n    :global queued;\\\\\\\
+    \n    \\n    \\\\n    :global limit;\\\\\\\
+    \n    \\n    \\\\n    :global period;\\\\\\\
     \n    \\n    \\\\n    /system/script/set [find name=initFirst] source=\\\\\
     \\\"#\\\\\\\\\\\\\\\
     \n    \\n    \\\\n        initglobal VARS. Then run script to init global \
@@ -235,6 +232,10 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    \\\\n        \\\\\\\\n:delay delay-time=60s; \\\\\\\\\\\\\\\
     \n    \\n    \\\\n        \\\\\\\\n:global resultRx \\\\\\\$resultRx;\\\\\
     \\\\\\\\\\\
+    \n    \\n    \\\\n        \\\\\\\\n:global limit \\\\\\\$limit;\\\\\
+    \\\\\\\\\\\
+    \n    \\n    \\\\n        \\\\\\\\n:global period \\\\\\\$period;\\\\\
+    \\\\\\\\\\\    
     \n    \\n    \\\\n        \\\\\\\\n/log debug \\\\\\\\\\\\\\\"var resultRx\
     \_= \\\\\\\\\\\\\\\$resultRx\\\\\\\
     \n    \\\\\\\\\\\"\\\\\\\\\\\\\\\
@@ -283,13 +284,13 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    \\\\n:global Analyze do={\\\\\\\
     \n    \\n    \\\\n#    Analyze do={\\\\\\\
     \n    \\n    \\\\n    :global cudate;\\\\\\\
-    \n    \\n    \\\\n    :if (([:timestamp] - \\\\\\\$cudate) > 24h) do={\\\\\
+    \n    \\n    \\\\n    :if (([:timestamp] - \\\\\\\$cudate) > \\\\\\\$period) do={\\\\\
     \\\
-    \n    \\n    \\\\n        #new day!!!\\\\\\\
+    \n    \\n    \\\\n        #new period!!!\\\\\\\
     \n    \\n    \\\\n        :return 2; } else={\\\\\\\
     \n    \\n    \\\\n        :global resultTx;\\\\\\\
     \n    \\n    \\\\n        :global resultRx;\\\\\\\
-    \n    \\n    \\\\n        :if ((\\\\\\\$resultTx + \\\\\\\$resultRx) >= 2000000000) do={\\\\\\\
+    \n    \\n    \\\\n        :if ((\\\\\\\$resultTx + \\\\\\\$resultRx) >= \\\\\\\$limit) do={\\\\\\\
     \n    \\n    \\\\n        #limit!!!\\\\\\\
     \n    \\n    \\\\n        :return 1; } else={:return 0}\\\\\\\
     \n    \\n    \\\\n    }\\\\\\\
@@ -312,7 +313,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    \\\\n    :set resultRx 0;\\\\\\\
     \n    \\n    \\\\n    :set resultTx 0;\\\\\\\
     \n    \\n    \\\\n    :set queued 0;\\\\\\\
-    \n    \\n    \\\\n    :set cudate (([:timestamp]/1d)*1d);\\\\\\\
+    \n    \\n    \\\\n    :set cudate (([:timestamp]/\\\\\\\$period)*\\\\\\\$period);\\\\\\\
     \n    \\n    \\\\n    [\\\\\\\$SaveVars];\\\\\\\
     \n    \\n    \\\\n    :return 0;\\\\\\\
     \n    \\n    \\\\n}\\\\\\\
