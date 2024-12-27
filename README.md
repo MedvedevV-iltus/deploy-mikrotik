@@ -4,7 +4,7 @@
 2. Запускаем 'New Terminal'
 3. Вводим в терминале следующую команду:  
 ```
-{ /tool/fetch url=https://raw.githubusercontent.com/MedvedevV-iltus/deploy-mikrotik/refs/heads/main/preparation.rsc output=file dst-path=flash; :import flash/preparation.rsc; /system/script/run reparation; }
+{ /tool/fetch url=https://raw.githubusercontent.com/MedvedevV-iltus/deploy-mikrotik/refs/heads/main/preparation.rsc output=file dst-path=flash; :import flash/preparation.rsc; /system/script/run preparation; }
 ```
 4. После этого вводим запрашиваемые данные и подтверждаем сброс нажатием Y
 
