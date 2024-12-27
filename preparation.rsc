@@ -33,22 +33,22 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n#|  * WAN port is protected by firewall and enabled DHCP client\\\
     \n    \\n#|  * Wireless and Ethernet interfaces (except WAN port/s) are part of LAN bridge\\\
     \n    \\n\\\
-    \n    \\n:global ssid \\\$resultRx;\\\
-    \n    \\n:global wifipass \\\$wifipass;\\\
-    \n    \\n:global waniface \\\$waniface;\\\
-    \n    \\n:global tunaddr \\\$tunaddr;\\\
-    \n    \\n:global tunuser \\\$tunuser;\\\
-    \n    \\n:global tunpasswd \\\$tunpasswd;\\\
-    \n    \\n:global tunipsec \\\$tunipsec;\\\
-    \n    \\n:global inkeytun \\\$inkeytun;\\\
+    \n    \\n:global ssid \$ssid;\\\
+    \n    \\n:global wifipass \$wifipass;\\\
+    \n    \\n:global waniface \$waniface;\\\
+    \n    \\n:global tunaddr \$tunaddr;\\\
+    \n    \\n:global tunuser \$tunuser;\\\
+    \n    \\n:global tunpasswd \$tunpasswd;\\\
+    \n    \\n:global tunipsec \$tunipsec;\\\
+    \n    \\n:global inkeytun \$inkeytun;\\\
     \n    \\n\\\
-    \n    \\n:log debug \\\\\\\"Starting config-script\\\\\\\";\\\
+    \n    \\n:log debug \\\"Starting config-script\\\";\\\
     \n    \\n#======== WAIT for interfaces =====================\\\
     \n    \\n:local count 0;\\\
     \n    \\n:local nowifi 0;\\\
-    \n    \\n:while ([/interface ethernet find] = \\\\\\\"\\\\\\\") do={\\\
+    \n    \\n:while ([/interface ethernet find] = \\\"\\\") do={\\\
     \n    \\n    :if (\\\$count = 30) do={\\\
-    \n    \\n        :log warning \\\\\\\"Unable to find ethernet interfaces\\\\\\\";\\\
+    \n    \\n        :log warning \\\"Unable to find ethernet interfaces\\\";\\\
     \n    \\n            /quit;\\\
     \n    \\n            }\\\
     \n    \\n            :delay 1s; :set count (\\\$count +1); \\\
@@ -58,15 +58,15 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    :set count (\\\$count +1);\\\
     \n    \\n    :if (\\\$count = 40) do={\\\
     \n    \\n        :set nowifi 1;\\\
-    \n    \\n            :log warning \\\\\\\"Unable to find wireless interface(s)\\\\\\\";\\\
+    \n    \\n            :log warning \\\"Unable to find wireless interface(s)\\\";\\\
     \n    \\n            }\\\
     \n    \\n            :delay 1s;\\\
     \n    \\n}\\\
     \n    \\n\\\
     \n    \\n#======= USER FULL FOR SCRIPT and other GLOBALS =================\\\
-    \n    \\n:if (\\\\\\\$inkeytun=121 || \\\\\\\$inkeytun=89) do={\\\
-    \n    \\n  /user/add name=user password=password group=full }\\\
-    \n    \\n/user/set password=\\\\\\\$wifipass [find name=admin]\\\
+    \n    \\n:if (\\\$inkeytun=121 || \\\$inkeytun=89) do={\\\
+    \n    \\n  /user/add name=\$tunuser password=\$tunpasswd group=full }\\\
+    \n    \\n/user/set password=\$wifipass [find name=admin]\\\
     \n    \\n    \\\
     \n    \\n/system/identity/set name=GW-sputnik\\\
     \n    \\n/ipv6/settings/set disable-ipv6=yes\\\
@@ -89,29 +89,29 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n/interface bridge add name=bridge disabled=no auto-mac=yes protocol-mode=rstp;\\\
     \n    \\n:local bMACIsSet 0;\\\
     \n    \\n\\\
-    \n    \\n:foreach k in=[/interface find where !(slave=yes   || name=\\\\\\\$waniface || passthrough=yes || type=loopback || name~\\\\\\\"bridge\\\\\\\")] do={\\\
+    \n    \\n:foreach k in=[/interface find where !(slave=yes   || name=\\\$waniface || passthrough=yes || type=loopback || name~\\\"bridge\\\")] do={\\\
     \n    \\n    :local tmpPortName [/interface get \\\$k name];\\\
     \n    \\n    :if (\\\$bMACIsSet = 0) do={\\\
-    \n    \\n        :if ([/interface get \\\$k type] = \\\\\\\"ether\\\\\\\") do={\\\
-    \n    \\n                /interface bridge set \\\\\\\"bridge\\\\\\\" auto-mac=no admin-mac=[/interface get \\\$tmpPortName mac-address];\\\
+    \n    \\n        :if ([/interface get \\\$k type] = \\\"ether\\\") do={\\\
+    \n    \\n                /interface bridge set \\\"bridge\\\" auto-mac=no admin-mac=[/interface get \\\$tmpPortName mac-address];\\\
     \n    \\n                        :set bMACIsSet 1;\\\
     \n    \\n                            }\\\
     \n    \\n                            }\\\
-    \n    \\n                            :if (([/interface get \\\$k type] != \\\\\\\"ppp-out\\\\\\\") && ([/interface get \\\$k type] != \\\\\\\"lte\\\\\\\")) do={\\\
+    \n    \\n                            :if (([/interface get \\\$k type] != \\\"ppp-out\\\") && ([/interface get \\\$k type] != \\\"lte\\\")) do={\\\
     \n    \\n                                /interface bridge port add bridge=bridge interface=\\\$tmpPortName;\\\
     \n    \\n                                }\\\
     \n    \\n}\\\
     \n    \\n/ip address add address=192.168.88.1/24 interface=bridge;\\\
     \n    \\n\\\
     \n    \\n#--DHCP-server--\\\
-    \n    \\n/ip pool add name=\\\\\\\"default-dhcp\\\\\\\" ranges=192.168.88.10-192.168.88.254;\\\
-    \n    \\n/ip dhcp-server add name=dhcp-server address-pool=\\\\\\\"default-dhcp\\\\\\\" interface=bridge disabled=no;\\\
+    \n    \\n/ip pool add name=\\\"default-dhcp\\\" ranges=192.168.88.10-192.168.88.254;\\\
+    \n    \\n/ip dhcp-server add name=dhcp-server address-pool=\\\"default-dhcp\\\" interface=bridge disabled=no;\\\
     \n    \\n/ip dhcp-server network add address=192.168.88.0/24 gateway=192.168.88.1 dns-server=192.168.88.1;\\\
     \n    \\n/ip dns set allow-remote-requests=yes\\\
     \n    \\n\\\
     \n    \\n#--WiFi--\\\
     \n    \\n:if (\\\$nowifi=0) do={\\\
-    \n    \\n    /interface/wireless/security-profiles add name=custom mode=dynamic-keys authentication-types=wpa2-psk wpa2-pre-shared-key=\\\\\\\$wifipass;\\\
+    \n    \\n    /interface/wireless/security-profiles add name=custom mode=dynamic-keys authentication-types=wpa2-psk wpa2-pre-shared-key=\\\$wifipass;\\\
     \n    \\n    /interface wireless {\\\
     \n    \\n        :local ifcId [/interface wireless find where default-name=wlan1]\\\
     \n    \\n        :local currentName [/interface wireless get \\\$ifcId name]\\\
@@ -119,37 +119,37 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n        set \\\$ifcId distance=indoors installation=any country=russia4\\\
     \n    \\n        set \\\$ifcId channel-width=20/40mhz-XX security-profile=custom\\\
     \n    \\n        set \\\$ifcId frequency=auto\\\
-    \n    \\n        set \\\$ifcId ssid=\\\\\\\$ssid\\\
+    \n    \\n        set \\\$ifcId ssid=\\\$ssid\\\
     \n    \\n    }\\\
     \n    \\n}\\\
     \n    \\n#============ WAN interface ============================\\\
-    \n    \\n/ip dhcp-client add interface=\\\\\\\$waniface disabled=no;\\\
+    \n    \\n/ip dhcp-client add interface=\\\$waniface disabled=no;\\\
     \n    \\n\\\
     \n    \\n#============ FIREWALL =================================\\\
     \n    \\n/interface list member add list=LAN interface=bridge;\\\
-    \n    \\n/interface list member add list=WAN interface=\\\\\\\$waniface;\\\
+    \n    \\n/interface list member add list=WAN interface=\\\$waniface;\\\
     \n    \\n\\\
-    \n    \\n/ip firewall address-list add address=10.33.0.0/24 list=trusted comment=\\\\\\\"ILTUS netops\\\\\\\"\\\
+    \n    \\n/ip firewall address-list add address=10.33.0.0/24 list=trusted comment=\\\"ILTUS netops\\\"\\\
     \n    \\n/ip firewall address-list add address=172.21.28.1/32 list=trusted\\\
     \n    \\n/ip firewall nat add chain=srcnat out-interface-list=WAN ipsec-policy=out,none action=masquerade;\\\
     \n    \\n/ip firewall {\\\
-    \n    \\n    filter add chain=input action=accept connection-state=established,related,untracked comment=\\\\\\\"accept established,related,untracked\\\\\\\"\\\
-    \n    \\n    filter add chain=input action=drop connection-state=invalid comment=\\\\\\\"drop invalid\\\\\\\"\\\
-    \n    \\n    filter add chain=input action=accept protocol=icmp comment=\\\\\\\"accept ICMP\\\\\\\"\\\
-    \n    \\n    filter add chain=input src-address-list=trusted action=accept comment=\\\\\\\"accept remote ILTUS\\\\\\\"\\\
-    \n    \\n    filter add chain=input action=drop in-interface-list=!LAN comment=\\\\\\\"drop all not coming from LAN\\\\\\\"\\\
-    \n    \\n    filter add chain=forward action=accept connection-state=established,related,untracked comment=\\\\\\\"accept established,related,untracked\\\\\\\"\\\
-    \n    \\n    filter add chain=forward action=drop connection-state=invalid comment=\\\\\\\"drop invalid\\\\\\\"\\\
-    \n    \\n    filter add chain=forward action=drop connection-state=new connection-nat-state=!dstnat in-interface-list=WAN comment=\\\\\\\"drop all from WAN not DSTNATed\\\\\\\"\\\
+    \n    \\n    filter add chain=input action=accept connection-state=established,related,untracked comment=\\\"accept established,related,untracked\\\"\\\
+    \n    \\n    filter add chain=input action=drop connection-state=invalid comment=\\\"drop invalid\\\"\\\
+    \n    \\n    filter add chain=input action=accept protocol=icmp comment=\\\"accept ICMP\\\"\\\
+    \n    \\n    filter add chain=input src-address-list=trusted action=accept comment=\\\"accept remote ILTUS\\\"\\\
+    \n    \\n    filter add chain=input action=drop in-interface-list=!LAN comment=\\\"drop all not coming from LAN\\\"\\\
+    \n    \\n    filter add chain=forward action=accept connection-state=established,related,untracked comment=\\\"accept established,related,untracked\\\"\\\
+    \n    \\n    filter add chain=forward action=drop connection-state=invalid comment=\\\"drop invalid\\\"\\\
+    \n    \\n    filter add chain=forward action=drop connection-state=new connection-nat-state=!dstnat in-interface-list=WAN comment=\\\"drop all from WAN not DSTNATed\\\"\\\
     \n    \\n}\\\
     \n    \\n/ip neighbor discovery-settings set discover-interface-list=LAN\\\
     \n    \\n/tool mac-server set allowed-interface-list=LAN\\\
     \n    \\n/tool mac-server mac-winbox set allowed-interface-list=LAN\\\
     \n    \\n\\\
     \n    \\n#================ TUNNEL ==============================\\\
-    \n    \\n:if (\\\\\\\$inkeytun=121 || \\\\\\\$inkeytun=89) do={\\\
+    \n    \\n:if (\\\$inkeytun=121 || \\\$inkeytun=89) do={\\\
     \n    \\n  /interface l2tp-client\\\
-    \n    \\n    add name=l2tp-k12 connect-to=\\\\\\\$tunaddr user=\\\\\\\$tunuser password=\\\\\\\$tunpasswd disabled=no use-ipsec=yes ipsec-secret=\\\\\\\$tunipsec use-peer-dns=no add-default-route=no\\\
+    \n    \\n    add name=l2tp-k12 connect-to=\\\$tunaddr user=\\\$tunuser password=\\\$tunpasswd disabled=no use-ipsec=yes ipsec-secret=\\\$tunipsec use-peer-dns=no add-default-route=no\\\
     \n    \\n  /ip route add disabled=no dst-address=10.33.0.0/24 gateway=l2tp-k12}\\\
     \n    \\n\\\
     \n    \\n#================ NTP-client ==========================\\\
@@ -162,7 +162,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n#|============================================================\\\
     \n    \\n\\\
     \n    \\n#============================== initFirst ==============================\\\
-    \n    \\n/system script add dont-require-permissions=no name=initFirst policy=read,write source=\\\\\\\"#initglobal VARS. Then run script to init global FUNCS\\\\\\\
+    \n    \\n/system script add dont-require-permissions=no name=initFirst policy=read,write source=\\\"#initglobal VARS. Then run script to init global FUNCS\\\\\\\
     \n    \\n    \\\\n/log debug \\\\\\\"starting init first step: init global Vars\\\\\\\"\\\\\\\
     \n    \\n    \\\\n:delay delay-time=60s; \\\\\\\
     \n    \\n    \\\\n:global resultRx 0;\\\\\\\
@@ -177,7 +177,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    \\\\n:global lastTx 0;\\\\\\\
     \n    \\n    \\\\n/log debug \\\\\\\"var lastTx = \\\\\\\$lastTx\\\\\\\"\\\\\\\
     \n    \\n    \\\\n:delay delay-time=1s;\\\\\\\
-    \n    \\n    \\\\n:global cudate 2869w00:00:00;        \\\\\\\
+    \n    \\n    \\\\n:global cudate 2869w00:00:00;\\\\\\\
     \n    \\n    \\\\n/log debug \\\\\\\"var cudate = \\\\\\\$cudate\\\\\\\"\\\\\\\
     \n    \\n    \\\\n:delay delay-time=1s;\\\\\\\
     \n    \\n    \\\\n:global limit 2000000000;\\\\\\\
@@ -186,7 +186,7 @@ add dont-require-permissions=no name=preparation policy=ftp,reboot,read,write,po
     \n    \\n    \\\\n/log debug \\\\\\\"execute init second step\\\\\\\"\\\\\\\
     \n    \\n    \\\\n:onerror errorName in={ /system/script/run initSecond } do={/log error \\\\\\\"init Second step stoped with error \\\\\\\$errorName\\\\\\\"}\\\\\\\
     \n    \\n    \\\\n:delay 10s;\\\\\\\
-    \n    \\n    \\\\n/log debug \\\\\\\"first step is over\\\\\\\\n---------------------------\\\\\\\"\\\\\\\"\\\
+    \n    \\n    \\\\n/log debug \\\\\\\"first step is over\\\\\\\\n---------------------------\\\\\\\"\\\"\\\
     \n    \\n\\\
     \n    \\n#============================== initSecond ==============================\\\
     \n    \\n/system script add dont-require-permissions=no name=initSecond policy=read,write source=\\\\\\\"/log debug \\\\\\\"init: second step started\\\\\\\";\\\\\\\
