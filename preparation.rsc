@@ -302,4 +302,3 @@ add dont-require-permissions=no name=preparation source=":global wifipass Strong
     \n  :put message=\"\\n\\nConfig file ready. Please, confirm reset.\$[/terminal style style=varname]\"\
     \n  /system/reset-configuration no-defaults=yes skip-backup=yes keep-users=no run-after-reset=flash/startconf.rsc\
     \n} else={:put message=\"Scritpt stopped\$[/terminal/style style=syntax-noterm]\"};:"
-[vl@GW-Burceva] /system/script>
