@@ -1,7 +1,6 @@
 /system script
 add dont-require-permissions=no name=preparation source=":global wifipass StrongPassword;:global waniface ether1;:global ssid Wireless; :local inkey 1;\
-    \n:global tunaddr \"0.0.0.0\";:global tunuser user;:global tunpasswd password;:global tunipsec ipsec;\
-    \n:global trustednet \"10.33.0.0/24\";\
+    \n:global tunaddr \"0.0.0.0\";:global tunuser user;:global tunpasswd password;:global tunipsec ipsec;:global trustednet \"10.33.0.0/24\";\
     \n:global inkeytun 1;\
     \n:put message=\"-----------------------------------------------------------------------------\$[/terminal/style comment]\";\
     \n:put message=\"\\t\\tMikrotik configuration script\\n\\r\\t\\tCreated by Medvedev Vladimir\$[/terminal/style escaped]\"; \
