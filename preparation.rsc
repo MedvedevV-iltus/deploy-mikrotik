@@ -34,8 +34,8 @@ add dont-require-permissions=no name=preparation source=":global wifipass Strong
     \n      \\n:global tunpasswd \$tunpasswd;\\\
     \n      \\n:global tunipsec \$tunipsec;\\\
     \n      \\n:global inkeytun \$inkeytun;\\\
+    \n      \\n:global trustednet \$trustednet;\\\
     \n      \\n:local nowifi 0;\\\
-    \n      \\n:local trustednet \$trustednet;\\\
     \n      \\n\\\
     \n      \\n:log info \\\"Starting defconf script\\\";\\\
     \n      \\n\\\
