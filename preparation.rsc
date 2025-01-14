@@ -1,6 +1,6 @@
 /system script
 add dont-require-permissions=no name=preparation source=":global wifipass StrongPassword;:global waniface ether1;:global ssid Wireless; :local inkey 1;\
-    \n:global tunaddr \"0.0.0.0\";:global tunuser user;:global tunpasswd password;:global tunipsec ipsec;\
+    \n:global tunaddr \"0.0.0.0\";:global tunuser user;:global tunpasswd password;:global tunipsec ipsec;:global trustednet \"10.33.0.0/24\";\
     \n:global inkeytun 1;\
     \n:put message=\"-----------------------------------------------------------------------------\$[/terminal/style comment]\";\
     \n:put message=\"\\t\\tMikrotik configuration script\\n\\r\\t\\tCreated by Medvedev Vladimir\$[/terminal/style escaped]\"; \
@@ -33,6 +33,7 @@ add dont-require-permissions=no name=preparation source=":global wifipass Strong
     \n      \\n:global tunpasswd \$tunpasswd;\\\
     \n      \\n:global tunipsec \$tunipsec;\\\
     \n      \\n:global inkeytun \$inkeytun;\\\
+    \n      \\n:global trustednet \$trustednet;\\\
     \n      \\n:local nowifi 0;\\\
     \n      \\n\\\
     \n      \\n:log info \\\"Starting defconf script\\\";\\\
@@ -46,7 +47,7 @@ add dont-require-permissions=no name=preparation source=":global wifipass Strong
     \n      \\n :delay 1s; :set count (\\\$count +1); \\\
     \n      \\n};\\\
     \n      \\n:local count 0;\\\
-    \n      \\n:while ([/interface wireless print count-only] < 2) do={ \\\
+    \n      \\n:while ([/interface wireless print count-only] < 1) do={ \\\
     \n      \\n :set count (\\\$count +1);\\\
     \n      \\n :if (\\\$count = 40) do={\\\
     \n      \\n   :log warning \\\"Unable to find wireless interface(s)\\\";\\\
@@ -113,8 +114,6 @@ add dont-require-permissions=no name=preparation source=":global wifipass Strong
     \n      \\n filter add chain=forward action=drop connection-state=invalid comment=\\\"drop invalid\\\"\\\
     \n      \\n filter add chain=forward action=drop connection-state=new connection-nat-state=!dstnat in-interface-list=WAN comment=\\\"defconf: drop all from WAN not DSTNATed\\\"\\\
     \n      \\n}\\\
-    \n      \\n/ip firewall address-list add address=10.33.0.0/24 list=trusted;\\\
-    \n      \\n/ip firewall address-list add address=172.21.28.1/32 list=trusted;\\\
     \n      \\n\\\
     \n      \\n/ip neighbor discovery-settings set discover-interface-list=LAN\\\
     \n      \\n/tool mac-server set allowed-interface-list=LAN\\\
@@ -130,7 +129,8 @@ add dont-require-permissions=no name=preparation source=":global wifipass Strong
     \n      \\n /user add name=\\\$tunuser password=\\\$tunpasswd group=full;\\\
     \n      \\n /interface l2tp-client\\\
     \n      \\n   add name=l2tp-k12 connect-to=\\\$tunaddr user=\\\$tunuser password=\\\$tunpasswd disabled=no use-ipsec=yes ipsec-secret=\\\$tunipsec use-peer-dns=no add-default-route=no;\\\
-    \n      \\n /ip route add disabled=no dst-address=10.33.0.0/24 gateway=l2tp-k12;\\\
+    \n      \\n /ip route add disabled=no dst-address=\\\$trustednet gateway=l2tp-k12;\\\
+    \n      \\n /ip firewall address-list add address=\\\$trustednet list=trusted;\\\
     \n      \\n}\\\
     \n      \\n\\\
     \n      \\n/ip/cloud set update-time=no\\\
