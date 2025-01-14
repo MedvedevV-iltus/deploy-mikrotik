@@ -1,6 +1,6 @@
 /system script
-add dont-require-permissions=no name=preparation source=":global wifipass StrongPassword;:global waniface ether1;:global ssid Wireless; :local inkey 1;\
-    \n:global tunaddr \"0.0.0.0\";:global tunuser user;:global tunpasswd password;:global tunipsec ipsec;:global trustednet \"10.33.0.0/24\";\
+add dont-require-permissions=no name=preparation owner=username policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global wifipass StrongPassword;:global waniface ether1;:global ssid Wireless; :local inkey 1;\
+    \n:global tunaddr \"0.0.0.0\";:global tunuser user;:global tunpasswd password;:global tunipsec ipsec;:global trustednet \"some network/24\";\
     \n:global inkeytun 1;\
     \n:put message=\"-----------------------------------------------------------------------------\$[/terminal/style comment]\";\
     \n:put message=\"\\t\\tMikrotik configuration script\\n\\r\\t\\tCreated by Medvedev Vladimir\$[/terminal/style escaped]\"; \
@@ -24,6 +24,7 @@ add dont-require-permissions=no name=preparation source=":global wifipass Strong
     \n    :set tunuser value=[/terminal/ask prompt=\"\\n\\n\\rEnter L2TP-username\" value-name=\"L2TP user: \$[/terminal/style style=syntax-noterm ]\"];\
     \n    :set tunpasswd value=[/terminal/ask prompt=\"\\n\\n\\rEnter L2TP-password\" value-name=\"L2TP password: \$[/terminal/style style=syntax-noterm ]\"];\
     \n    :set tunipsec value=[/terminal/ask prompt=\"\\n\\n\\rEnter IPSec-key\" value-name=\"IPSec-key: \$[/terminal/style style=syntax-noterm ]\"];\
+    \n    :set trustednet value=[/terminal/ask prompt=\"\\n\\n\\rEnter trusted Net for access\" value-name=\"Trusted Net: \$[/terminal/style style=syntax-noterm]\" ];\
     \n    }\
     \n    /file add name=flash/startconf.rsc contents=\":global ssid \$ssid;\\\
     \n      \\n:global wifipass \$wifipass;\\\
