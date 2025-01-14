@@ -47,7 +47,7 @@ add dont-require-permissions=no name=preparation source=":global wifipass Strong
     \n      \\n :delay 1s; :set count (\\\$count +1); \\\
     \n      \\n};\\\
     \n      \\n:local count 0;\\\
-    \n      \\n:while ([/interface wireless print count-only] < 2) do={ \\\
+    \n      \\n:while ([/interface wireless print count-only] < 1) do={ \\\
     \n      \\n :set count (\\\$count +1);\\\
     \n      \\n :if (\\\$count = 40) do={\\\
     \n      \\n   :log warning \\\"Unable to find wireless interface(s)\\\";\\\
