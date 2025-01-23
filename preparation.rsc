@@ -288,8 +288,8 @@ add dont-require-permissions=no name=preparation source=":global wifipass Strong
     \n      \\n }\\\
     \n      \\n [\\\\\\\$SaveVars];\\\
     \n      \\n #cycle is over\\\
-    \n      \\n /log debug \\\\\\\"cycle #\\\\\\\$cycles is over. wait for 20 seconds\\\\\\\"\\\
-    \n      \\n :delay delay-time=20s;\\\
+    \n      \\n /log debug \\\\\\\"cycle #\\\\\\\$cycles is over. wait for 2 seconds\\\\\\\"\\\
+    \n      \\n :delay delay-time=2s;\\\
     \n      \\n}\\\"\\\
     \n      \\n\\\
     \n      \\n#===SCHEDULER===\\\
